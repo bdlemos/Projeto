@@ -37,12 +37,13 @@ const writeCSV = async (filePath: string, data: Data[]): Promise<void> => {
 };
 
 const recuperaEstoque = (nome: string, data:Data[]): Data =>{
-    var estoque = data;
     var i = 0;
-    while (estoque[i].nome != nome){
-        i++;
+    for (i = 0; i < data.length; i++){
+        if (data[i].nome == nome){
+            return data[i];
+        }
     }
-    return estoque[i];
+    return {nome: '', peso: 0, valor: 0, qtd: 0};
 }
 
 const listaEstoque = (data:Data[]) =>{
@@ -51,16 +52,48 @@ const listaEstoque = (data:Data[]) =>{
   });
 }
 
+const criaProduto = (nome: string, peso: number, valor: number, qtd: number): Data =>{
+  return {nome: nome, peso: peso, valor: valor, qtd: qtd};
+}
+
+const inserirNovoProduto = (novo:Data, data:Data[]): Data[] =>{
+  if(recuperaEstoque(novo.nome, data).nome == novo.nome){
+    throw 'Produto já existe';
+  }
+  data.push(novo);
+  return data;
+}
+
+const removeProduto = (nome: string, data:Data[]): Data[] =>{
+  var i = 0;
+  for (i = 0; i < data.length; i++){
+    if (data[i].nome == nome){
+      data.splice(i, 1);
+      return data;
+    }
+  }
+  throw 'Produto não existe';
+}
+
 const main = async () => {
   try {
     const data = await readCSV('Estoque.csv');
     //console.log('Dados lidos:', data);
 
-    var jimbe = [ { nome: 'Arroz', peso: 1, valor: 10, qtd:1}, { nome: 'Feijão', peso: 1, valor: 5, qtd:100}, { nome: 'Macarrão', peso: 1, valor: 20, qtd:13}];
-    //console.log(recuperaEstoque('Arroz', data));
+    // Testa inserir novo produto
+    console.log('Testa inserir novo produto');
+    inserirNovoProduto(criaProduto('Arroz', 1, 2, 3), data);
+    inserirNovoProduto(criaProduto('Feijão', 1, 2, 3), data);
     listaEstoque(data);
 
-    await writeCSV('Estoque.csv', jimbe);
+    //Testa remover produto
+    console.log('Testa remover produto');
+    removeProduto('Arroz', data);
+    removeProduto('Feijão', data);
+    removeProduto('Arroz', data);
+    listaEstoque(data);
+
+    await writeCSV('Estoque.csv', data);
     console.log('Dados escritos em output.csv');
   } catch (error) {
     console.error('Erro:', error);
