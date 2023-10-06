@@ -1,83 +1,60 @@
-import fs from 'fs';
-import csv from 'csv-parser';
+import readCSV from '../model/readCSV';
+import writeCSV from '../model/writeCSV';
+import { Data } from '../model/data.interface';
 
-interface Data {
-    nome: string;
-    peso: number;
-    valor: number;
-    qtd: number;
-}
+class EstoqueService{
 
+  Estoque: Data[] = [];
 
-const readCSV = async (filePath: string): Promise<Data[]> => {
-  return new Promise((resolve, reject) => {
-    const results: Data[] = [];
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (data: Data) => results.push(data))
-      .on('end', () => resolve(results))
-      .on('error', (error) => reject(error));
-  });
-};
+  async EstoqueService(){
+    this.Estoque = await (readCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv') as Promise<Data[]>);
+  }
+  
+  async salvaEstoque(){
+    await writeCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv', this.Estoque);
+  }
 
-import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
+  async recuperaEstoque (nome: string){
+      for (var i = 0; i < this.Estoque.length; i++){
+          if (this.Estoque[i].NOME == nome){
+              return this.Estoque[i];
+          }
+      }
+      throw 'Produto não existe';
+  }
 
-const writeCSV = async (filePath: string, data: Data[]): Promise<void> => {
-  const csvWriter = createCsvWriter({
-    path: filePath,
-    header: [
-      { id: 'nome', title: 'nome' },
-      { id: 'peso', title: 'peso' },
-      { id: 'valor', title: 'valor'},
-      { id: 'qtd', title: 'qtd'},
-    ],
-  });
+  listaEstoque(){
+    this.Estoque.forEach(element => {
+      console.log(element.NOME, ' ', element.QTD, ' ', element.VALOR, ' ', element.PESO);
+    });
+  }
 
-  return csvWriter.writeRecords(data);
-};
+  async inserir(novo:Data){
+    try{
+      await this.recuperaEstoque(novo.NOME);
+      console.log('Produto já existe');
+    }catch (error){
+      this.Estoque.push(novo);
+    }
+  }
 
-const recuperaEstoque = (nome: string, data:Data[]): Data =>{
+  async remove(nome: string){
     var i = 0;
-    for (i = 0; i < data.length; i++){
-        if (data[i].nome == nome){
-            return data[i];
-        }
+    for (i = 0; i < this.Estoque.length; i++){
+      if (this.Estoque[i].NOME == nome){
+        this.Estoque.splice(i, 1);
+        return this.Estoque;
+      }
     }
-    return {nome: '', peso: 0, valor: 0, qtd: 0};
-}
-
-const listaEstoque = (data:Data[]) =>{
-  data.forEach(element => {
-    console.log(element.nome, ' ', element.qtd, ' ', element.valor, ' ', element.peso);
-  });
-}
-
-const criaProduto = (nome: string, peso: number, valor: number, qtd: number): Data =>{
-  return {nome: nome, peso: peso, valor: valor, qtd: qtd};
-}
-
-const inserirNovoProduto = (novo:Data, data:Data[]): Data[] =>{
-  if(recuperaEstoque(novo.nome, data).nome == novo.nome){
-    throw 'Produto já existe';
+    throw 'Produto não existe';
   }
-  data.push(novo);
-  return data;
 }
 
-const removeProduto = (nome: string, data:Data[]): Data[] =>{
-  var i = 0;
-  for (i = 0; i < data.length; i++){
-    if (data[i].nome == nome){
-      data.splice(i, 1);
-      return data;
-    }
-  }
-  throw 'Produto não existe';
-}
+export default new EstoqueService();
 
-const main = async () => {
+/* const main = async () => {
   try {
-    const data = await readCSV('Estoque.csv');
+    const data = await readCSV('../model/Estoque.csv');
     //console.log('Dados lidos:', data);
 
     // Testa inserir novo produto
@@ -87,17 +64,17 @@ const main = async () => {
     listaEstoque(data);
 
     //Testa remover produto
-    console.log('Testa remover produto');
-    removeProduto('Arroz', data);
-    removeProduto('Feijão', data);
-    removeProduto('Arroz', data);
+    //console.log('Testa remover produto');
+    //removeProduto('Arroz', data);
+    //removeProduto('Feijão', data);
+    //removeProduto('Arroz', data);
     listaEstoque(data);
 
-    await writeCSV('Estoque.csv', data);
+    await writeCSV('../model/Estoque.csv', data);
     console.log('Dados escritos em output.csv');
   } catch (error) {
     console.error('Erro:', error);
   }
 };
 
-main();
+main(); */
