@@ -2,48 +2,65 @@ import readCSV from '../model/readCSV';
 import writeCSV from '../model/writeCSV';
 import { Data } from '../model/data.interface';
 
-class EstoqueService{
+class EstoqueService {
 
   Estoque: Data[] = [];
+  /**
+  * Lê o arquivo CSV e armazena os dados em um array
+  */
+  async EstoqueService() {
 
-  async EstoqueService(){
     this.Estoque = await (readCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv') as Promise<Data[]>);
   }
-  
-  async salvaEstoque(){
+  /**
+  * Salva os dados do array em um arquivo CSV
+  */
+  async salvaEstoque() {
+    
     await writeCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv', this.Estoque);
   }
 
-  async recuperaEstoque (nome: string){
-      for (var i = 0; i < this.Estoque.length; i++){
-          if (this.Estoque[i].NOME == nome){
-              return this.Estoque[i];
-          }
+  /**
+   * Recupera um produto do estoque
+   */
+  async recuperaEstoque(nome: string) {
+    for (var i = 0; i < this.Estoque.length; i++) {
+      if (this.Estoque[i].NOME == nome) {
+        return this.Estoque[i];
       }
-      throw 'Produto não existe';
+    }
+    throw 'Produto não existe';
   }
 
-  listaEstoque(){
+  /**
+   * Lista todos os produtos do estoque
+   */
+  listaEstoque() {
     this.Estoque.forEach(element => {
-      console.log('NOME:',element.NOME, ' QTD:', element.QTD, ' VALOR:', element.VALOR, ' PESO:', element.PESO);
+      console.log('NOME:', element.NOME, ' QTD:', element.QTD, ' VALOR:', element.VALOR, ' PESO:', element.PESO);
     });
   }
-
-  async inserir(novo:Data){
-    try{
+  /**
+   * Insere um novo produto no estoque
+   */
+  async inserir(novo: Data) {
+    try {
       await this.recuperaEstoque(novo.NOME);
       console.log('Produto já existe');
-    }catch (error){
+    } catch (error) {
       this.Estoque.push(novo);
       this.salvaEstoque();
       console.log('Produto adicionado com sucesso');
     }
   }
 
-  async remove(nome: string){
+  /**
+ * Remove um produto do estoque
+ */
+  async remove(nome: string) {
     var i = 0;
-    for (i = 0; i < this.Estoque.length; i++){
-      if (this.Estoque[i].NOME == nome){
+    for (i = 0; i < this.Estoque.length; i++) {
+      if (this.Estoque[i].NOME == nome) {
         this.Estoque.splice(i, 1);
         this.salvaEstoque();
         return;
