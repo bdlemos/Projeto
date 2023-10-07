@@ -25,7 +25,7 @@ class EstoqueService{
 
   listaEstoque(){
     this.Estoque.forEach(element => {
-      console.log(element.NOME, ' ', element.QTD, ' ', element.VALOR, ' ', element.PESO);
+      console.log('NOME:',element.NOME, ' QTD:', element.QTD, ' VALOR:', element.VALOR, ' PESO:', element.PESO);
     });
   }
 
@@ -35,6 +35,8 @@ class EstoqueService{
       console.log('Produto já existe');
     }catch (error){
       this.Estoque.push(novo);
+      this.salvaEstoque();
+      console.log('Produto adicionado com sucesso');
     }
   }
 
@@ -43,7 +45,8 @@ class EstoqueService{
     for (i = 0; i < this.Estoque.length; i++){
       if (this.Estoque[i].NOME == nome){
         this.Estoque.splice(i, 1);
-        return this.Estoque;
+        this.salvaEstoque();
+        return;
       }
     }
     throw 'Produto não existe';
@@ -51,30 +54,3 @@ class EstoqueService{
 }
 
 export default new EstoqueService();
-
-/* const main = async () => {
-  try {
-    const data = await readCSV('../model/Estoque.csv');
-    //console.log('Dados lidos:', data);
-
-    // Testa inserir novo produto
-    console.log('Testa inserir novo produto');
-    inserirNovoProduto(criaProduto('Arroz', 1, 2, 3), data);
-    inserirNovoProduto(criaProduto('Feijão', 1, 2, 3), data);
-    listaEstoque(data);
-
-    //Testa remover produto
-    //console.log('Testa remover produto');
-    //removeProduto('Arroz', data);
-    //removeProduto('Feijão', data);
-    //removeProduto('Arroz', data);
-    listaEstoque(data);
-
-    await writeCSV('../model/Estoque.csv', data);
-    console.log('Dados escritos em output.csv');
-  } catch (error) {
-    console.error('Erro:', error);
-  }
-};
-
-main(); */
