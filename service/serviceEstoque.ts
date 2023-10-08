@@ -10,14 +10,14 @@ class EstoqueService {
   */
   async EstoqueService() {
 
-    this.Estoque = await (readCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv') as Promise<Data[]>);
+    this.Estoque = await (readCSV('model/Estoque.csv') as Promise<Data[]>);
   }
   /**
   * Salva os dados do array em um arquivo CSV
   */
   async salvaEstoque() {
     
-    await writeCSV('/home/bdlemos/Área de Trabalho/Ijr/Semana3/Projeto/model/Estoque.csv', this.Estoque);
+    await writeCSV('model/Estoque.csv', this.Estoque);
   }
 
   /**
